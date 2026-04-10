@@ -9,7 +9,7 @@
           <query>index=windows_logs
 | timechart span=1h count
 | fillnull value=0</query>
-          <earliest>-24h@h</earliest>
+          <earliest>-7d</earliest>
           <latest>now</latest>
         </search>
         <option name="charting.chart">line</option>
