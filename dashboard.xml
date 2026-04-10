@@ -1,0 +1,139 @@
+<dashboard version="1.1" theme="dark">
+  <label>SOC Security Monitoring Dashboard</label>
+  <description>Real-time detection of privilege escalation, credential dumping and unauthorized access</description>
+  <row>
+    <panel>
+      <chart>
+        <title>Events Over Time panel (Line Chart)</title>
+        <search>
+          <query>index=windows_logs
+| timechart span=1h count
+| fillnull value=0</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Audit Log Cleared Events</title>
+        <search>
+          <query>index=windows_logs
+| eval raw=_raw
+| where like(raw,"%1102%")
+| table _time host source raw</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Top Event Types</title>
+        <search>
+          <query>index=windows_logs
+| eval raw=_raw
+| eval EventType=case(
+    like(raw,"%1102%"),"Log Cleared",
+    like(raw,"%4663%") OR like(raw,"%4656%"),"Credential Access",
+    like(raw,"%4624%"),"Logon",
+    like(raw,"%4634%"),"Logoff",
+    like(raw,"%4688%"),"Process Execution",
+    like(raw,"%11%"),"Sysmon Activity",
+    true(),"Other"
+)
+| stats count by EventType
+| sort - count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Threat Type Distribution</title>
+      <chart>
+        <search>
+          <query>index=windows_logs earliest=-7d latest=now 
+index=windows_logs
+| eval raw=_raw
+| eval ThreatType=case(
+    like(raw,"%4672%"), "Privilege Escalation",
+    like(raw,"%4625%"), "Failed Login",
+    like(raw,"%4624%") AND like(raw,"%ANONYMOUS%"), "Anonymous Logon",
+    like(raw,"%4624%"), "Successful Logon",
+    like(raw,"%4634%"), "Logoff",
+    like(raw,"%1102%") OR like(raw,"%104%"), "Audit Log Cleared",
+    like(raw,"%4656%") OR like(raw,"%4663%"), "Credential Access",
+    like(raw,"%4688%"), "Process Execution",
+    like(raw,"%11%"), "Sysmon Activity",
+    true(), "Other"
+)
+| stats count by ThreatType
+| sort - count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Anonymous Logon Alerts</title>
+      <table>
+        <search>
+          <query>index=windows_logs earliest=-7d latest=now
+| eval raw=_raw
+| where like(raw,"%4624%") AND like(raw,"%ANONYMOUS LOGON%")
+| table _time host raw
+| sort - _time</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Credential Dumping Alerts</title>
+      <table>
+        <search>
+          <query>index=windows_logs earliest=-7d latest=now
+| eval raw=_raw
+| where like(raw,"%4663%") OR like(raw,"%4656%")
+| table _time host source raw
+| sort - _time</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</dashboard>
