@@ -123,4 +123,4 @@ splunk-soc-dashboard/
 
 **Pranjali Saini**  
 MSc Forensic Science — National Forensic Sciences University (NFSU), Gandhinagar  
-Specialisation: Cybersecurity | SOC Analysis | Digital Forensics
+Specialisation: Cyberforensic | SOC Analysis | Digital Forensics
