@@ -27,7 +27,7 @@
 | where like(raw,"%1102%")
 | table _time host source raw</query>
           <earliest>0</earliest>
-          <latest></latest>
+          <latest>now</latest>
         </search>
         <option name="drilldown">none</option>
       </table>
@@ -52,7 +52,7 @@
 | stats count by EventType
 | sort - count</query>
           <earliest>0</earliest>
-          <latest></latest>
+          <latest>now</latest>
         </search>
         <option name="charting.chart">bar</option>
         <option name="charting.drilldown">none</option>
